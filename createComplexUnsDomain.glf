@@ -24,19 +24,25 @@ if {[catch {
 
   set domain [pw::DomainUnstructured create]
 
-  # Create selection mask for outer edge.
+  # Create selection mask for outer edge. Run script on selected connectors if
+  # there are any.
   set outerEdgeMask [pw::Display createSelectionMask -requireConnector Dimensioned]
-
-  if {![pw::Display selectEntities -selectionmask $outerEdgeMask \
-      -description "Select connectors for outer edge" outerConnectors] } {
-    set outerConnectors(Connectors) ""
-  }
-
+  pw::Display getSelectedEntities -selectionmask $outerEdgeMask outerConnectors
   set nOuterCons [llength $outerConnectors(Connectors)]
 
+  # There are no pre-selected connectors, ask for them.
   if {$nOuterCons == 0} {
-    puts "No connectors for the outer edge were selected."
-    exit
+    if {![pw::Display selectEntities -selectionmask $outerEdgeMask \
+        -description "Select connectors for outer edge" outerConnectors] } {
+      set outerConnectors(Connectors) ""
+    }
+
+    set nOuterCons [llength $outerConnectors(Connectors)]
+
+    if {$nOuterCons == 0} {
+      puts "No connectors for the outer edge were selected."
+      exit
+    }
   }
 
   # Create outer edge from connectors.
