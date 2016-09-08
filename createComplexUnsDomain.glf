@@ -6,11 +6,11 @@
 
 package require PWI_Glyph
 
-# Set this to zero to skip domain initialization.
-set initializeDomain 1
+# Set this to zero/false to skip domain initialization.
+set initializeDomain true
 
-# Set this to zero if the script should be quite.
-set verbose 1
+# Set this to zero/false if the script should be quite.
+set verbose true
 
 # Record the value of pw::DomainUnstructured InitializeInterior.
 set origInitInterior [pw::DomainUnstructured getInitializeInterior]
