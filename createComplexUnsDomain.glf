@@ -6,9 +6,6 @@
 
 package require PWI_Glyph
 
-# Set this to zero/false to skip domain initialization.
-set initializeDomain true
-
 # Set this to zero/false if the script should be quite.
 set verbose true
 
@@ -161,27 +158,6 @@ if {[catch {
 
   if {$verbose} {
     puts "Created domain [$domain getName]"
-  }
-
-  if {$initializeDomain} {
-
-    if {$verbose} {
-      puts "Initializing..."
-    }
-
-    set startInit [pwu::Time now]
-
-    # Reset InitializeInterior.
-    pw::DomainUnstructured setInitializeInterior $origInitInterior
-
-    # Reset ShapeConstraint
-    $domain setUnstructuredSolverAttribute ShapeConstraint $origShapeConstraint
-
-    $domain initialize
-
-    if {$verbose} {
-      puts "Initialized [$domain getName] (took [pwu::Time elapsed $startInit] seconds)"
-    }
   }
 
 } retValue] == 1} {

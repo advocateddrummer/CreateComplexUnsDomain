@@ -30,12 +30,8 @@ in the text output.
 Options
 -------
 
-There are currently only two options/parameters that can be tweaked. These
-options can be modified by changing their default values at the top of the
-script.
+There is currently only one option/parameter that can be tweaked. This option
+can be modified by changing its default value at the top of the script.
 
 * `verbose`: if this is set to true or one (1) the script will print more
   information to the message window.
-
-* `initializeDomain`: if this is set to true or one (1) the complex domain will
-  be initialized by the script after it is created.
