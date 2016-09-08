@@ -19,11 +19,6 @@ set startTime [pwu::Time now]
 
 if {[catch {
 
-  # Disable domain initialization to speed up domain creation.
-  pw::DomainUnstructured setInitializeInterior false
-
-  set domain [pw::DomainUnstructured create]
-
   # Create selection mask for outer edge. Run script on selected connectors if
   # there are any.
   set outerEdgeMask [pw::Display createSelectionMask -requireConnector Dimensioned]
@@ -79,6 +74,19 @@ if {[catch {
 
   # Create the least amount of edges possible from selected inner connectors.
   set edges [pw::Edge createFromConnectors $innerConnectors(Connectors)]
+
+  # Create an unstructured domain.
+  set domain [pw::DomainUnstructured create]
+
+  # Disable domain initialization to speed up domain creation.
+  pw::DomainUnstructured setInitializeInterior false
+
+  # Record the original domain shape constraint option.
+  set origShapeConstraint [$domain getUnstructuredSolverAttribute ShapeConstraint]
+
+  # Turn off any shape constraints which may cause isValid to fail for the
+  # wrong reason.
+  $domain setUnstructuredSolverAttribute ShapeConstraint Free
 
   # Modify domain using a modification mode. All changes happen to a copy of
   # the domain, improving performance.
@@ -162,7 +170,13 @@ if {[catch {
     }
 
     set startInit [pwu::Time now]
-    pw::DomainUnstructured setInitializeInterior true
+
+    # Reset InitializeInterior.
+    pw::DomainUnstructured setInitializeInterior $origInitInterior
+
+    # Reset ShapeConstraint
+    $domain setUnstructuredSolverAttribute ShapeConstraint $origShapeConstraint
+
     $domain initialize
 
     if {$verbose} {
@@ -177,6 +191,9 @@ if {[catch {
   # Reset InitializeInterior.
   pw::DomainUnstructured setInitializeInterior $origInitInterior
 
+  # Reset ShapeConstraint
+  $domain setUnstructuredSolverAttribute ShapeConstraint $origShapeConstraint
+
   # Abort modification mode.
   $modMode abort
 
@@ -187,6 +204,9 @@ if {[catch {
 
   # Reset InitializeInterior.
   pw::DomainUnstructured setInitializeInterior $origInitInterior
+
+  # Reset ShapeConstraint
+  $domain setUnstructuredSolverAttribute ShapeConstraint $origShapeConstraint
 
   if {$verbose} {
     puts "Total elapsed time is [pwu::Time elapsed $startTime] seconds"
