@@ -1,7 +1,7 @@
 #==============================================================================
 # This Pointwise Glyph script creates a complex unstructured domain.
 # Author: Ethan Alan Hereth
-# Email:  ethan-hereth@utc.edu
+# Email:  ehereth@utk.edu
 #==============================================================================
 
 package require PWI_Glyph
