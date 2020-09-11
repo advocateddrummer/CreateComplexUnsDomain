@@ -6,6 +6,9 @@
 
 package require PWI_Glyph
 
+# Set this to one/true if the script is run in debug mode
+set debug true
+
 # Set this to zero/false if the script should be quite.
 set verbose true
 
@@ -45,6 +48,20 @@ if {[catch {
     exit
   }
 
+  if { $debug } {
+    puts "DEBUG: Outer edge $outerEdge defined"
+    puts "DEBUG:  it contains [$outerEdge getConnectorCount] connectors"
+    set conNames [list]
+    # Cannot use 'puts -nonewline' in the Pointwise message window: puts -nonewline "DEBUG:"
+    for {set i 1} {$i <= [$outerEdge getConnectorCount]} {incr i} {
+      lappend conNames [[$outerEdge getConnector $i] getName]
+      #puts -nonewline " [[$outerEdge getConnector $i] getName]"
+    }
+    #puts "DEBUG:    [$outerEdge getConnectors]"
+    puts "DEBUG:    $conNames"
+    puts "DEBUG:    [$outerEdge getConnectorOrientations]"
+  }
+
   lappend gEdges $outerEdge
 
   if {$verbose} {
@@ -72,6 +89,11 @@ if {[catch {
   # Create the least amount of edges possible from selected inner connectors.
   set edges [pw::Edge createFromConnectors $innerConnectors(Connectors)]
 
+  if { $debug } {
+    puts "DEBUG: [llength $edges ] inner edges defined"
+    set count 1
+  }
+
   # Create an unstructured domain.
   set domain [pw::DomainUnstructured create]
 
@@ -95,10 +117,28 @@ if {[catch {
   # Loop over each edge.
   foreach edge $edges {
 
+    if { $debug } {
+      puts "DEBUG:  $count: $edge contains [$edge getConnectorCount] connectors"
+      set conNames [list]
+      # Cannot use 'puts -nonewline' in the Pointwise message window: puts -nonewline "DEBUG:"
+      for {set i 1} {$i <= [$edge getConnectorCount]} {incr i} {
+        lappend conNames [[$edge getConnector $i] getName]
+        #puts -nonewline " [[$outerEdge getConnector $i] getName]"
+      }
+      #puts "DEBUG:    [$edge getConnectors]"
+      puts "DEBUG:    $conNames"
+      puts "DEBUG:    [$edge getConnectorOrientations]"
+      incr count
+    }
+
     $domain addEdge $outerEdge
 
     # Check if the edge is closed (loop) or open (baffle).
     if {![$edge isClosed]} {
+
+      if { $debug } {
+        puts "DEBUG:  $edge is not closed..."
+      }
 
       # If the edge is open, add the connectors to the edge a second time in
       # reverse order. This will be a baffle.
@@ -120,8 +160,18 @@ if {[catch {
     # the edge.
     if {![$domain isValid]} {
       $edge reverse
+
+      if { $debug } {
+        puts "DEBUG: edge $edge is invalid and is being reversed..."
+      }
+
       incr inValidCnt
     } else {
+
+      if { $debug } {
+        puts "DEBUG: edge $edge is valid..."
+      }
+
       incr validCnt
     }
 
@@ -152,8 +202,26 @@ if {[catch {
 
   $domain setName "GlyphDomain"
 
+  if { $debug && [pw::DomainUnstructured qualifyEdges $gEdges] } {
+    puts "gEdges pass 'pw::DomainUnstructured qualifyEdges'"
+  } else {
+    puts "gEdges _DO NOT_ pass 'pw::DomainUnstructured qualifyEdges'"
+  }
+
   foreach edge $gEdges {
+
+    #if { $debug } {
+    #  puts "DEBUG: adding $edge"
+    #  puts "DEBUG:    [$edge getConnectors]"
+    #  puts "DEBUG:    [$edge getConnectorOrientations]"
+    #}
+
     $domain addEdge $edge
+  }
+
+  if { $debug } {
+    puts "DEBUG: added $nEdges edges to $domain"
+    puts "DEBUG:   [$domain getEdges]"
   }
 
   if {$verbose} {
