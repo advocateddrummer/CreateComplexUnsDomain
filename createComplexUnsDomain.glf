@@ -183,6 +183,7 @@ if {[catch {
 
     # Remove all edges to speed up isValid computation; the outer edge gets
     # re-added at the beginning of the loop.
+    # TODO: check to see if $domain removeLastEdge works better here...
     $domain removeEdges -preserve
   }
 
@@ -235,11 +236,11 @@ if {[catch {
   # Reset InitializeInterior.
   pw::DomainUnstructured setInitializeInterior $origInitInterior
 
-  # Reset ShapeConstraint
-  $domain setUnstructuredSolverAttribute ShapeConstraint $origShapeConstraint
-
   # Abort modification mode.
   $modMode abort
+
+  # Delete the domain.
+  $domain delete
 
   exit
 } else {
