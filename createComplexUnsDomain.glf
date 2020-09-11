@@ -7,7 +7,7 @@
 package require PWI_Glyph
 
 # Set this to one/true if the script is run in debug mode
-set debug true
+set debug false
 
 # Set this to zero/false if the script should be quite.
 set verbose true
@@ -203,10 +203,12 @@ if {[catch {
 
   $domain setName "GlyphDomain"
 
-  if { $debug && [pw::DomainUnstructured qualifyEdges $gEdges] } {
-    puts "gEdges pass 'pw::DomainUnstructured qualifyEdges'"
-  } else {
-    puts "gEdges _DO NOT_ pass 'pw::DomainUnstructured qualifyEdges'"
+  if { $debug } {
+    if { [pw::DomainUnstructured qualifyEdges $gEdges] } {
+      puts "gEdges pass 'pw::DomainUnstructured qualifyEdges'"
+    } else {
+      puts "gEdges _DO NOT_ pass 'pw::DomainUnstructured qualifyEdges'"
+    }
   }
 
   foreach edge $gEdges {
